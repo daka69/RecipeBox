@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Recipe Box</string>
+    <string name="goodMorning">Selamat Datang! 👋</string>
+    <string name="whatCookToday">Apa yang ingin kamu masak hari ini?</string>
+    <string name="searchRecipes">Cari resep...</string>
+    <string name="noRecipes">Tidak ada resep</string>
+    <string name="tryAnotherCategory">Coba kategori lain</string>
+    <string name="loadingRecipes">Memuat resep...</string>
+    <string name="failedLoadRecipes">Gagal Memuat Resep</string>
+    <string name="retry">Coba Lagi</string>
+    <string name="popularRecipes">Resep Populer</string>
+    <string name="all">Semua</string>
+    <string name="didYouKnow">Tahukah Kamu? 💡</string>
+
+    <string name="myRecipes">Resep Saya</string>
+    <string name="personalCollection">Koleksi resep pribadimu</string>
+    <string name="noRecipesYet">Belum ada resep</string>
+    <string name="startAddRecipes">Mulai tambahkan resep masakan\npribadimu di sini</string>
+    <string name="addRecipe">Tambah Resep</string>
+    <string name="tabPersonal">Buatan Sendiri</string>
+    <string name="tabSaved">Tersimpan</string>
+    <string name="noBookmarksYet">Belum ada resep tersimpan</string>
+    <string name="startAddBookmarks">Cari resep dan tekan ikon bookmark\nuntuk menyimpannya di sini</string>
+
+    <string name="aboutDish">Tentang Hidangan</string>
+    <string name="ingredients">Bahan-bahan</string>
+    <string name="nIngredients">bahan</string>
+    <string name="cookingSteps">Langkah Memasak</string>
+    <string name="nutritionInfo">Informasi Gizi</string>
+    <string name="calories">Kalori</string>
+    <string name="fat">Lemak</string>
+    <string name="carbs">Karbohidrat</string>
+    <string name="protein">Protein</string>
+    <string name="healthScore">Skor Kesehatan</string>
+    <string name="dietaryInfo">Info Diet</string>
+    <string name="vegetarian">Vegetarian</string>
+    <string name="vegan">Vegan</string>
+    <string name="glutenFree">Bebas Gluten</string>
+    <string name="dairyFree">Bebas Susu</string>
+    <string name="deleteRecipe">Hapus Resep</string>
+    <string name="confirmDelete">Apakah kamu yakin ingin menghapus resep ini?</string>
+    <string name="yesDelete">Ya, Hapus</string>
+    <string name="cancel">Batal</string>
+    <string name="servings">porsi</string>
+    <string name="offlineIngredients">Bahan-bahan tidak tersedia secara offline.</string>
+
+    <string name="recipeSearch">Pencarian Resep</string>
+    <string name="searchRecipeName">Cari nama resep...</string>
+    <string name="recipesFound">resep ditemukan</string>
+    <string name="findFavorite">Cari resep favoritmu</string>
+    <string name="typeOrSelectCategory">Ketik nama resep atau pilih kategori</string>
+    <string name="recipeNotFound">Resep tidak ditemukan</string>
+    <string name="tryDifferentKeyword">Coba kata kunci atau kategori yang berbeda</string>
+
+    <string name="editRecipe">Edit Resep</string>
+    <string name="recipePhoto">Foto Resep</string>
+    <string name="tapToUpload">Ketuk untuk upload foto</string>
+    <string name="recipeName">Nama Resep</string>
+    <string name="enterRecipeName">Masukkan nama resep</string>
+    <string name="category">Kategori</string>
+    <string name="selectCategory">Pilih kategori</string>
+    <string name="add">Tambah</string>
+    <string name="saveRecipe">Simpan Resep</string>
+    <string name="saveChanges">Simpan Perubahan</string>
+    <string name="nameRequired">Nama resep tidak boleh kosong</string>
+    <string name="categoryRequired">Pilih kategori terlebih dahulu</string>
+    <string name="enterInstruction">Masukkan instruksi</string>
+    <string name="pickFromGallery">Pilih dari Galeri</string>
+    <string name="takePhoto">Ambil Foto</string>
+    <string name="chooseImageSource">Pilih Sumber Gambar</string>
+
+    <string name="settings">Pengaturan</string>
+    <string name="display">Tampilan</string>
+    <string name="darkMode">Dark Mode</string>
+    <string name="active">Aktif</string>
+    <string name="inactive">Nonaktif</string>
+    <string name="information">Informasi</string>
+    <string name="aboutApp">Tentang Aplikasi</string>
+    <string name="language">Bahasa</string>
+    <string name="aboutDescription">Recipe Box adalah asisten kuliner pribadimu. Temukan resep baru, kelola masakan favorit, dan tingkatkan pengalaman memasakmu dengan mudah dan elegan.</string>
+    <string name="technology">Teknologi</string>
+
+    <string name="discoverRecipes">Jelajahi Resep</string>
+    <string name="discoverDesc">Temukan berbagai macam resep publik dari komunitas kami</string>
+    <string name="saveYourRecipes">Simpan Resepmu</string>
+    <string name="saveDesc">Simpan resep favorit dan buat koleksi pribadimu</string>
+    <string name="cookAnywhere">Masak di Mana Saja</string>
+    <string name="cookDesc">Akses resepmu secara offline kapan saja, di mana saja</string>
+    <string name="next">Selanjutnya →</string>
+    <string name="getStarted">Mulai</string>
+
+    <string name="mealPlanTitle">Rencana Makan (Meal Plan)</string>
+    <string name="mealPlanDesc">Buat jadwal sarapan, siang, dan malam sesuai kalori harianmu.</string>
+    <string name="targetCalories">Target Kalori (kkal)</string>
+    <string name="dietType">Tipe Diet</string>
+    <string name="generatePlan">Generate Plan</string>
+    <string name="dailyNutrition">Total Gizi Hari Ini</string>
+    <string name="minutes">Menit</string>
+</resources>
