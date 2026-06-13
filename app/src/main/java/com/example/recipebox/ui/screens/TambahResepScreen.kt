@@ -100,6 +100,8 @@ fun TambahEditResepScreen(
             val uri = createImageUri(context)
             cameraImageUri = uri
             cameraLauncher.launch(uri)
+        } else {
+            android.widget.Toast.makeText(context, "Izin kamera diperlukan untuk mengambil foto", android.widget.Toast.LENGTH_SHORT).show()
         }
     }
 

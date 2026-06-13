@@ -35,7 +35,6 @@ class RecipeViewModel @Inject constructor(
     private val updateRecipeUseCase: UpdateRecipeUseCase,
     private val deleteRecipeUseCase: DeleteRecipeUseCase,
     private val toggleBookmarkUseCase: ToggleBookmarkUseCase,
-    private val searchRecipesUseCase: SearchRecipesUseCase,
     private val getRandomTriviaUseCase: GetRandomTriviaUseCase,
     private val translationService: TranslationService
 ) : ViewModel() {
@@ -221,9 +220,6 @@ class RecipeViewModel @Inject constructor(
         }
     }
 
-    fun searchRecipes(allRecipes: List<Recipe>, query: String, category: String): List<Recipe> {
-        return searchRecipesUseCase(allRecipes, query, category)
-    }
 
     fun onLanguageChanged(newLang: Language) {
         if (_language.value == newLang) return

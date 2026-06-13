@@ -7,12 +7,14 @@ import com.example.recipebox.domain.model.CookingStep
 import com.example.recipebox.domain.model.Recipe
 import com.example.recipebox.domain.model.RecipeDetail
 import com.example.recipebox.domain.repository.RecipeRepository
+import com.example.recipebox.data.mapper.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class RecipeRepositoryImpl(
     private val apiService: RecipeApiService,
-    private val dao: RecipeDao
+    private val dao: RecipeDao,
+    private val converters: com.example.recipebox.data.local.Converters
 ) : RecipeRepository {
 
     override suspend fun getPublicRecipes(): List<Recipe> {
@@ -55,20 +57,10 @@ class RecipeRepositoryImpl(
             val cachedEntities = dao.getCachedPublicRecipes()
             if (cachedEntities.isNotEmpty()) {
                 cachedEntities.map { entity ->
-                    Recipe(
-                        id = entity.id,
-                        name = entity.name,
-                        category = entity.category,
-                        imageUrl = entity.imageUrl,
-                        cookTime = entity.cookTime,
-                        servings = entity.servings,
-                        instructions = entity.instructions,
-                        isBookmarked = entity.isBookmarked,
-                        isPersonal = entity.id.contains("-")
-                    )
+                    entity.toDomainModel()
                 }
             } else {
-                emptyList()
+                throw Exception("No network connection and no cached recipes available. Please check your internet connection.")
             }
         }
     }
@@ -139,148 +131,32 @@ class RecipeRepositoryImpl(
             } catch (e: Exception) {
                 // Fallback to local DB if offline
                 val localRecipe = dao.getRecipeById(id) ?: return null
-                val stepsText = localRecipe.instructions
-                val steps = stepsText.split("\n")
-                    .filter { it.isNotBlank() }
-                    .mapIndexed { index, instruction ->
-                        CookingStep(stepNumber = index + 1, instruction = instruction.trim())
-                    }
-                val ingredients = com.example.recipebox.data.local.Converters().toIngredientList(localRecipe.ingredientsJson)
-                val nutrition = com.example.recipebox.data.local.Converters().toNutritionInfo(localRecipe.nutritionJson)
-                return RecipeDetail(
-                    id = localRecipe.id,
-                    name = localRecipe.name,
-                    category = localRecipe.category,
-                    imageUrl = localRecipe.imageUrl,
-                    cookTime = localRecipe.cookTime,
-                    servings = localRecipe.servings,
-                    summary = localRecipe.summary,
-                    description = localRecipe.instructions,
-                    ingredients = ingredients,
-                    steps = steps,
-                    nutrition = nutrition,
-                    healthScore = localRecipe.healthScore,
-                    isVegetarian = localRecipe.isVegetarian,
-                    isVegan = localRecipe.isVegan,
-                    isGlutenFree = localRecipe.isGlutenFree,
-                    isDairyFree = localRecipe.isDairyFree,
-                    isBookmarked = localRecipe.isBookmarked,
-                    isPersonal = false
-                )
+                return localRecipe.toDomainDetailModel(converters)
             }
         } else {
             // It's a personal recipe, always fetch from local DB
             val localRecipe = dao.getRecipeById(id) ?: return null
-            val stepsText = localRecipe.instructions
-            val steps = stepsText.split("\n")
-                .filter { it.isNotBlank() }
-                .mapIndexed { index, instruction ->
-                    CookingStep(stepNumber = index + 1, instruction = instruction.trim())
-                }
-            val ingredients = com.example.recipebox.data.local.Converters().toIngredientList(localRecipe.ingredientsJson)
-            val nutrition = com.example.recipebox.data.local.Converters().toNutritionInfo(localRecipe.nutritionJson)
-            return RecipeDetail(
-                id = localRecipe.id,
-                name = localRecipe.name,
-                category = localRecipe.category,
-                imageUrl = localRecipe.imageUrl,
-                cookTime = localRecipe.cookTime,
-                servings = localRecipe.servings,
-                summary = localRecipe.summary,
-                description = localRecipe.instructions,
-                ingredients = ingredients,
-                steps = steps,
-                nutrition = nutrition,
-                healthScore = localRecipe.healthScore,
-                isVegetarian = localRecipe.isVegetarian,
-                isVegan = localRecipe.isVegan,
-                isGlutenFree = localRecipe.isGlutenFree,
-                isDairyFree = localRecipe.isDairyFree,
-                isBookmarked = localRecipe.isBookmarked,
-                isPersonal = true
-            )
+            return localRecipe.toDomainDetailModel(converters)
         }
     }
 
     override fun getPersonalRecipes(): Flow<List<Recipe>> {
         return dao.getAllPersonalRecipes().map { entities ->
-            entities.map {
-                Recipe(
-                    id = it.id,
-                    name = it.name,
-                    category = it.category,
-                    imageUrl = it.imageUrl,
-                    cookTime = it.cookTime,
-                    servings = it.servings,
-                    instructions = it.instructions,
-                    isBookmarked = it.isBookmarked,
-                    isPersonal = true
-                )
-            }
+            entities.map { it.toDomainModel() }
         }
     }
 
     override suspend fun getRecipeById(id: String): Recipe? {
         val entity = dao.getRecipeById(id)
-        return entity?.let {
-            Recipe(
-                id = it.id,
-                name = it.name,
-                category = it.category,
-                imageUrl = it.imageUrl,
-                cookTime = it.cookTime,
-                servings = it.servings,
-                instructions = it.instructions,
-                isBookmarked = it.isBookmarked,
-                isPersonal = true
-            )
-        }
+        return entity?.toDomainModel()
     }
 
     override suspend fun addRecipe(recipe: RecipeDetail) {
-        dao.insertRecipe(
-            RecipeEntity(
-                id = recipe.id,
-                name = recipe.name,
-                category = recipe.category,
-                imageUrl = recipe.imageUrl,
-                cookTime = recipe.cookTime,
-                servings = recipe.servings,
-                instructions = recipe.steps.joinToString("\n") { it.instruction },
-                isBookmarked = recipe.isBookmarked,
-                ingredientsJson = com.example.recipebox.data.local.Converters().fromIngredientList(recipe.ingredients),
-                summary = recipe.summary,
-                nutritionJson = com.example.recipebox.data.local.Converters().fromNutritionInfo(recipe.nutrition),
-                healthScore = recipe.healthScore,
-                isVegetarian = recipe.isVegetarian,
-                isVegan = recipe.isVegan,
-                isGlutenFree = recipe.isGlutenFree,
-                isDairyFree = recipe.isDairyFree
-            )
-        )
+        dao.insertRecipe(recipe.toEntity(converters))
     }
 
     override suspend fun updateRecipe(recipe: RecipeDetail) {
-        dao.updateRecipe(
-            RecipeEntity(
-                id = recipe.id,
-                name = recipe.name,
-                category = recipe.category,
-                imageUrl = recipe.imageUrl,
-                cookTime = recipe.cookTime,
-                servings = recipe.servings,
-                instructions = recipe.steps.joinToString("\n") { it.instruction },
-                isBookmarked = recipe.isBookmarked,
-                ingredientsJson = com.example.recipebox.data.local.Converters().fromIngredientList(recipe.ingredients),
-                summary = recipe.summary,
-                nutritionJson = com.example.recipebox.data.local.Converters().fromNutritionInfo(recipe.nutrition),
-                healthScore = recipe.healthScore,
-                isVegetarian = recipe.isVegetarian,
-                isVegan = recipe.isVegan,
-                isGlutenFree = recipe.isGlutenFree,
-                isDairyFree = recipe.isDairyFree
-            )
-        )
+        dao.updateRecipe(recipe.toEntity(converters))
     }
 
     override suspend fun deleteRecipe(recipe: Recipe) {
@@ -312,45 +188,14 @@ class RecipeRepositoryImpl(
         } else {
             val detail = getRecipeDetailById(recipeId)
             if (detail != null) {
-                dao.insertRecipe(
-                    RecipeEntity(
-                        id = detail.id,
-                        name = detail.name,
-                        category = detail.category,
-                        imageUrl = detail.imageUrl,
-                        cookTime = detail.cookTime,
-                        servings = detail.servings,
-                        instructions = detail.steps.joinToString("\n") { it.instruction },
-                        isBookmarked = isBookmarked,
-                        ingredientsJson = com.example.recipebox.data.local.Converters().fromIngredientList(detail.ingredients),
-                        summary = detail.summary,
-                        nutritionJson = com.example.recipebox.data.local.Converters().fromNutritionInfo(detail.nutrition),
-                        healthScore = detail.healthScore,
-                        isVegetarian = detail.isVegetarian,
-                        isVegan = detail.isVegan,
-                        isGlutenFree = detail.isGlutenFree,
-                        isDairyFree = detail.isDairyFree
-                    )
-                )
+                dao.insertRecipe(detail.toEntity(converters).copy(isBookmarked = isBookmarked))
             }
         }
     }
 
     override fun getBookmarkedRecipes(): Flow<List<Recipe>> {
         return dao.getBookmarkedRecipes().map { entities ->
-            entities.map {
-                Recipe(
-                    id = it.id,
-                    name = it.name,
-                    category = it.category,
-                    imageUrl = it.imageUrl,
-                    cookTime = it.cookTime,
-                    servings = it.servings,
-                    instructions = it.instructions,
-                    isBookmarked = it.isBookmarked,
-                    isPersonal = true
-                )
-            }
+            entities.map { it.toDomainModel() }
         }
     }
 

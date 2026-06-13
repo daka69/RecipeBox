@@ -37,10 +37,16 @@ fun PencarianScreen(
     val allCategoryStr = stringResource(R.string.all)
     val categories = listOf(allCategoryStr) + allRecipes.map { it.category }.distinct().sorted()
     var searchQuery by remember { mutableStateOf("") }
+    var debouncedQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf(allCategoryStr) }
 
+    LaunchedEffect(searchQuery) {
+        kotlinx.coroutines.delay(500L)
+        debouncedQuery = searchQuery
+    }
+
     val filteredRecipes = allRecipes.filter { recipe ->
-        val matchQuery = searchQuery.isBlank() || recipe.name.contains(searchQuery, ignoreCase = true)
+        val matchQuery = debouncedQuery.isBlank() || recipe.name.contains(debouncedQuery, ignoreCase = true)
         val matchCategory = selectedCategory == allCategoryStr || recipe.category == selectedCategory
         matchQuery && matchCategory
     }

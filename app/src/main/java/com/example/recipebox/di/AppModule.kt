@@ -22,6 +22,12 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideSettingsDataStore(@ApplicationContext context: Context): com.example.recipebox.data.local.datastore.SettingsDataStore {
+        return com.example.recipebox.data.local.datastore.SettingsDataStore(context)
+    }
+
+    @Provides
+    @Singleton
     fun provideDatabase(@ApplicationContext context: Context): RecipeDatabase {
         return RecipeDatabase.getDatabase(context)
     }
@@ -29,6 +35,12 @@ object AppModule {
     @Provides
     fun provideRecipeDao(database: RecipeDatabase): RecipeDao {
         return database.recipeDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideConverters(): com.example.recipebox.data.local.Converters {
+        return com.example.recipebox.data.local.Converters()
     }
 
     @Provides
@@ -47,9 +59,10 @@ object AppModule {
     @Singleton
     fun provideRecipeRepository(
         apiService: RecipeApiService,
-        dao: RecipeDao
+        dao: RecipeDao,
+        converters: com.example.recipebox.data.local.Converters
     ): RecipeRepository {
-        return RecipeRepositoryImpl(apiService, dao)
+        return RecipeRepositoryImpl(apiService, dao, converters)
     }
 
     @Provides
@@ -100,11 +113,6 @@ object AppModule {
         return ToggleBookmarkUseCase(repository)
     }
 
-    @Provides
-    @Singleton
-    fun provideSearchRecipesUseCase(repository: RecipeRepository): SearchRecipesUseCase {
-        return SearchRecipesUseCase(repository)
-    }
 
     @Provides
     @Singleton

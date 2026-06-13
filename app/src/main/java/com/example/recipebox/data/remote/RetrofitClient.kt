@@ -17,6 +17,11 @@ object RetrofitClient {
     private val apiKeyInterceptor = Interceptor { chain ->
         val original = chain.request()
         
+        // Guard against missing API key
+        if (API_KEYS.isEmpty() || API_KEYS[0] == "null" || API_KEYS[0].isBlank() || API_KEYS[0].contains("YOUR_API_KEY")) {
+            throw java.io.IOException("API Key is missing or invalid. Please set SPOONACULAR_API_KEY in local.properties")
+        }
+        
         // Get current key
         val currentKey = API_KEYS[currentKeyIndex]
         
