@@ -22,8 +22,6 @@ Dibangun dengan arsitektur **MVVM + Clean Architecture**, menggunakan **Jetpack 
   <img src="screenshots/settings.png" width="200" alt="Settings"/>
 </p>
 
-> **Catatan:** Tambahkan screenshot ke folder `screenshots/` di root project.
-
 ---
 
 ## ✨ Penjelasan Fitur
@@ -82,7 +80,7 @@ Dibangun dengan arsitektur **MVVM + Clean Architecture**, menggunakan **Jetpack 
 
 1. **Clone repository**
    ```bash
-   git clone https://github.com/username/recipe-box.git
+   git clone https://github.com/daka69/RecipeBox.git
    cd recipe-box
    ```
 
