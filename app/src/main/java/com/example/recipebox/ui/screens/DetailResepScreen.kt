@@ -16,6 +16,7 @@ import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.WifiOff
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Translate
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -42,6 +43,7 @@ fun DetailResepScreen(
     onDelete: () -> Unit = {},
     onBookmarkToggle: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     if (showDeleteDialog) {
@@ -80,6 +82,16 @@ fun DetailResepScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = {
+                        val shareIntent = android.content.Intent().apply {
+                            action = android.content.Intent.ACTION_SEND
+                            putExtra(android.content.Intent.EXTRA_TEXT, "Lihat resep ${recipe.name} yang lezat ini! Buka di aplikasi Recipe Box: recipebox://detail/${recipe.id}")
+                            type = "text/plain"
+                        }
+                        context.startActivity(android.content.Intent.createChooser(shareIntent, "Bagikan Resep"))
+                    }) {
+                        Icon(Icons.Filled.Share, contentDescription = "Share", tint = MaterialTheme.colorScheme.onSurface)
+                    }
                     if (!recipe.isPersonal) {
                         IconButton(onClick = onBookmarkToggle) {
                             val icon = if (recipe.isBookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder

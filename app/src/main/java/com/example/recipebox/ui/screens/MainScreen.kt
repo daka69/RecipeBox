@@ -14,7 +14,7 @@ import com.example.recipebox.domain.model.RecipeDetail
 import com.example.recipebox.domain.model.Ingredient
 import java.util.UUID
 import com.example.recipebox.ui.state.StepInput
-import com.example.recipebox.presentation.viewmodel.RecipeViewModel
+
 import com.example.recipebox.presentation.viewmodel.UiState
 import com.example.recipebox.ui.navigation.Screen
 
@@ -23,11 +23,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.navDeepLink
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeBoxApp(
-    viewModel: RecipeViewModel,
+    homeViewModel: com.example.recipebox.presentation.viewmodel.HomeViewModel,
+    myRecipesViewModel: com.example.recipebox.presentation.viewmodel.MyRecipesViewModel,
+    detailViewModel: com.example.recipebox.presentation.viewmodel.RecipeDetailViewModel,
     settingsViewModel: com.example.recipebox.presentation.viewmodel.SettingsViewModel,
     mealPlanViewModel: com.example.recipebox.presentation.viewmodel.MealPlanViewModel
 ) {
@@ -39,29 +42,27 @@ fun RecipeBoxApp(
     
     val navController = rememberNavController()
 
-    val publicRecipesState by viewModel.publicRecipesState.collectAsState()
-    val publicRecipes by viewModel.publicRecipes.collectAsState()
-    val personalRecipes by viewModel.personalRecipes.collectAsState()
-    val bookmarkedRecipes by viewModel.bookmarkedRecipes.collectAsState()
-    val recipeDetailState by viewModel.recipeDetailState.collectAsState()
-    val isTranslating by viewModel.isTranslating.collectAsState()
-    val triviaState by viewModel.triviaState.collectAsState()
+    val publicRecipesState by homeViewModel.publicRecipesState.collectAsState()
+    val publicRecipes by remember(publicRecipesState) {
+        derivedStateOf {
+            if (publicRecipesState is UiState.Success) {
+                (publicRecipesState as UiState.Success).data
+            } else {
+                emptyList()
+            }
+        }
+    }
+    val personalRecipes by myRecipesViewModel.personalRecipes.collectAsState()
+    val bookmarkedRecipes by myRecipesViewModel.bookmarkedRecipes.collectAsState()
+    val recipeDetailState by detailViewModel.recipeDetailState.collectAsState()
+    val isTranslating by detailViewModel.isTranslating.collectAsState()
+    val triviaState by homeViewModel.triviaState.collectAsState()
     
     val isDarkMode by settingsViewModel.isDarkMode.collectAsState()
     val currentLanguage by settingsViewModel.language.collectAsState()
     val mealPlanState by mealPlanViewModel.mealPlanState.collectAsState()
 
-    var showDetail by rememberSaveable { mutableStateOf(false) }
-    var showAddEdit by rememberSaveable { mutableStateOf(false) }
-    var isEditMode by rememberSaveable { mutableStateOf(false) }
-    var selectedRecipeId by rememberSaveable { mutableStateOf<String?>(null) }
-
-    // Find the selected recipe from the lists
-    val selectedRecipe = selectedRecipeId?.let { id ->
-        publicRecipes.find { it.id == id } 
-            ?: personalRecipes.find { it.id == id }
-            ?: bookmarkedRecipes.find { it.id == id }
-    }
+    // Overlays state removed. Navigation state is handled by NavController.
 
     if (showOnboarding) {
         OnboardingScreen(onFinish = { 
@@ -71,10 +72,7 @@ fun RecipeBoxApp(
         return
     }
 
-    androidx.activity.compose.BackHandler(enabled = showDetail || showAddEdit) {
-        if (showDetail) showDetail = false
-        if (showAddEdit) showAddEdit = false
-    }
+
 
     Scaffold(
         bottomBar = {
@@ -87,8 +85,8 @@ fun RecipeBoxApp(
 
                 items.forEach { screen ->
                     NavigationBarItem(
-                        icon = { Icon(screen.icon, contentDescription = screen.label) },
-                        label = { Text(screen.label) },
+                        icon = { Icon(screen.icon, contentDescription = androidx.compose.ui.res.stringResource(screen.labelResId)) },
+                        label = { Text(androidx.compose.ui.res.stringResource(screen.labelResId)) },
                         selected = currentDestination?.route == screen.route,
                         onClick = {
                             navController.navigate(screen.route) {
@@ -98,9 +96,7 @@ fun RecipeBoxApp(
                                 launchSingleTop = true
                                 restoreState = true
                             }
-                            // Dismiss overlays when switching tabs
-                            showDetail = false
-                            showAddEdit = false
+
                         },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = MaterialTheme.colorScheme.primary,
@@ -119,17 +115,13 @@ fun RecipeBoxApp(
                         recipesState = publicRecipesState,
                         triviaState = triviaState,
                         onRecipeClick = { recipe ->
-                            selectedRecipeId = recipe.id
-                            viewModel.fetchRecipeDetail(recipe.id)
-                            showDetail = true
+                            navController.navigate("detail/${recipe.id}")
                         },
                         onAddClick = {
-                            isEditMode = false
-                            selectedRecipeId = null
-                            showAddEdit = true
+                            navController.navigate("add_edit/new")
                         },
                         onSearchClick = { navController.navigate(Screen.Search.route) },
-                        onRetry = { viewModel.fetchPublicRecipes() }
+                        onRetry = { homeViewModel.fetchPublicRecipes() }
                     )
                 }
                 composable(Screen.MealPlan.route) {
@@ -139,9 +131,7 @@ fun RecipeBoxApp(
                             mealPlanViewModel.fetchMealPlan(calories, diet)
                         },
                         onRecipeClick = { id ->
-                            selectedRecipeId = id
-                            viewModel.fetchRecipeDetail(id)
-                            showDetail = true
+                            navController.navigate("detail/$id")
                         }
                     )
                 }
@@ -150,17 +140,13 @@ fun RecipeBoxApp(
                         recipes = personalRecipes,
                         bookmarkedRecipes = bookmarkedRecipes,
                         onRecipeClick = { recipe ->
-                            selectedRecipeId = recipe.id
-                            viewModel.fetchRecipeDetail(recipe.id)
-                            showDetail = true
+                            navController.navigate("detail/${recipe.id}")
                         },
                         onAddClick = {
-                            isEditMode = false
-                            selectedRecipeId = null
-                            showAddEdit = true
+                            navController.navigate("add_edit/new")
                         },
                         onDeleteRecipe = { recipe ->
-                            viewModel.deletePersonalRecipe(recipe)
+                            myRecipesViewModel.deletePersonalRecipe(recipe)
                         }
                     )
                 }
@@ -168,9 +154,7 @@ fun RecipeBoxApp(
                     PencarianScreen(
                         allRecipes = publicRecipes + personalRecipes,
                         onRecipeClick = { recipe ->
-                            selectedRecipeId = recipe.id
-                            viewModel.fetchRecipeDetail(recipe.id)
-                            showDetail = true
+                            navController.navigate("detail/${recipe.id}")
                         }
                     )
                 }
@@ -182,149 +166,191 @@ fun RecipeBoxApp(
                         onLanguageToggle = { settingsViewModel.toggleLanguage() }
                     )
                 }
-            }
-
-            if (showDetail) {
-                when (val state = recipeDetailState) {
-                    is UiState.Idle, is UiState.Loading -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                            composable(
+                    route = Screen.Detail.route,
+                    deepLinks = listOf(navDeepLink { uriPattern = "recipebox://detail/{recipeId}" })
+                ) { backStackEntry ->
+                    val recipeId = backStackEntry.arguments?.getString("recipeId")
+                    
+                    LaunchedEffect(recipeId) {
+                        if (recipeId != null) {
+                            detailViewModel.fetchRecipeDetail(recipeId)
                         }
                     }
-                    is UiState.Success -> {
-                        DetailResepScreen(
-                            recipe = state.data,
-                            isTranslating = isTranslating,
-                            onBack = { showDetail = false },
-                            onEdit = {
-                                showDetail = false
-                                isEditMode = true
-                                showAddEdit = true
-                            },
-                            onDelete = {
-                                if (selectedRecipe != null) {
-                                    viewModel.deletePersonalRecipe(selectedRecipe)
-                                }
-                                showDetail = false
-                            },
-                            onBookmarkToggle = {
-                                viewModel.toggleBookmark(
-                                    state.data.id,
-                                    state.data.isBookmarked
+                    
+                    val selectedRecipe = recipeId?.let { id ->
+                        publicRecipes.find { it.id == id } 
+                            ?: personalRecipes.find { it.id == id }
+                            ?: bookmarkedRecipes.find { it.id == id }
+                    }
+                    
+                    when (val state = recipeDetailState) {
+                        is UiState.Idle, is UiState.Loading -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    color = MaterialTheme.colorScheme.primary
                                 )
                             }
-                        )
-                    }
-                    is UiState.Error -> {
-                        DetailResepScreen(
-                            recipe = RecipeDetail(
-                                id = selectedRecipeId ?: "",
-                                name = selectedRecipe?.name ?: "Error",
-                                category = selectedRecipe?.category ?: "",
-                                imageUrl = selectedRecipe?.imageUrl ?: "",
-                                cookTime = selectedRecipe?.cookTime ?: "",
-                                servings = selectedRecipe?.servings ?: 0,
-                                description = selectedRecipe?.instructions ?: "",
-                                ingredients = emptyList(),
-                                steps = listOf(
-                                    CookingStep(1, selectedRecipe?.instructions ?: "")
-                                ),
-                                isBookmarked = selectedRecipe?.isBookmarked ?: false,
-                                isPersonal = selectedRecipe?.isPersonal ?: false
-                            ),
-                            onBack = { showDetail = false },
-                            onEdit = {
-                                showDetail = false
-                                isEditMode = true
-                                showAddEdit = true
-                            },
-                            onDelete = {
-                                if (selectedRecipe != null) {
-                                    viewModel.deletePersonalRecipe(selectedRecipe)
+                        }
+                        is UiState.Success -> {
+                            DetailResepScreen(
+                                recipe = state.data,
+                                isTranslating = isTranslating,
+                                onBack = { navController.popBackStack() },
+                                onEdit = {
+                                    navController.navigate("add_edit/${state.data.id}")
+                                },
+                                onDelete = {
+                                    val recipeToDelete = selectedRecipe ?: com.example.recipebox.domain.model.Recipe(
+                                        id = state.data.id,
+                                        name = state.data.name,
+                                        category = state.data.category,
+                                        imageUrl = state.data.imageUrl,
+                                        cookTime = state.data.cookTime,
+                                        servings = state.data.servings,
+                                        instructions = state.data.description,
+                                        isBookmarked = state.data.isBookmarked,
+                                        isPersonal = state.data.isPersonal
+                                    )
+                                    myRecipesViewModel.deletePersonalRecipe(recipeToDelete)
+                                    navController.popBackStack()
+                                },
+                                onBookmarkToggle = {
+                                    detailViewModel.toggleBookmark(
+                                        state.data.id,
+                                        state.data.isBookmarked
+                                    )
                                 }
-                                showDetail = false
-                            },
-                            onBookmarkToggle = { }
-                        )
-                    }
-                }
-            }
-
-            if (showAddEdit) {
-                // Get current detail if available (for edit mode)
-                val currentDetail = (recipeDetailState as? UiState.Success)?.data
-
-                TambahEditResepScreen(
-                    isEditMode = isEditMode,
-                    initialName = if (isEditMode) (selectedRecipe?.name ?: "") else "",
-                    initialCategory = if (isEditMode) (selectedRecipe?.category ?: "") else "",
-                    initialImageUri = if (isEditMode) (selectedRecipe?.imageUrl ?: "") else "",
-                    initialIngredients = if (isEditMode && currentDetail != null && currentDetail.ingredients.isNotEmpty()) {
-                        currentDetail.ingredients.mapIndexed { index, ingredient ->
-                            IngredientInput(
-                                id = index,
-                                name = ingredient.name,
-                                qty = ingredient.quantity,
-                                unit = ingredient.unit
                             )
                         }
-                    } else {
-                        listOf(IngredientInput(0))
-                    },
-                    initialSteps = if (isEditMode && selectedRecipe != null) {
-                        val instructions = selectedRecipe.instructions
-                        val stepTexts = instructions.split("\n").filter { it.isNotBlank() }
-                        if (stepTexts.isNotEmpty()) {
-                            stepTexts.mapIndexed { index, text ->
-                                StepInput(index, text.trim())
+                        is UiState.Error -> {
+                            DetailResepScreen(
+                                recipe = RecipeDetail(
+                                    id = recipeId ?: "",
+                                    name = selectedRecipe?.name ?: "Error",
+                                    category = selectedRecipe?.category ?: "",
+                                    imageUrl = selectedRecipe?.imageUrl ?: "",
+                                    cookTime = selectedRecipe?.cookTime ?: "",
+                                    servings = selectedRecipe?.servings ?: 0,
+                                    description = selectedRecipe?.instructions ?: "",
+                                    ingredients = emptyList(),
+                                    steps = listOf(
+                                        CookingStep(1, selectedRecipe?.instructions ?: "")
+                                    ),
+                                    isBookmarked = selectedRecipe?.isBookmarked ?: false,
+                                    isPersonal = selectedRecipe?.isPersonal ?: false
+                                ),
+                                onBack = { navController.popBackStack() },
+                                onEdit = {
+                                    navController.navigate("add_edit/${recipeId}")
+                                },
+                                onDelete = {
+                                    if (selectedRecipe != null) {
+                                        myRecipesViewModel.deletePersonalRecipe(selectedRecipe)
+                                    }
+                                    navController.popBackStack()
+                                },
+                                onBookmarkToggle = { }
+                            )
+                        }
+                    }
+                }
+
+                composable(route = Screen.AddEdit.route) { backStackEntry ->
+                    val recipeId = backStackEntry.arguments?.getString("recipeId")
+                    val isEditMode = recipeId != "new"
+                    
+                    val selectedRecipe = if (isEditMode) {
+                        recipeId?.let { id ->
+                            publicRecipes.find { it.id == id } 
+                                ?: personalRecipes.find { it.id == id }
+                                ?: bookmarkedRecipes.find { it.id == id }
+                        }
+                    } else null
+                    
+                    val currentDetail = (recipeDetailState as? UiState.Success)?.data
+                    
+                    TambahEditResepScreen(
+                        isEditMode = isEditMode,
+                        initialName = if (isEditMode) (selectedRecipe?.name ?: "") else "",
+                        initialCategory = if (isEditMode) (selectedRecipe?.category ?: "") else "",
+                        initialCookTime = if (isEditMode) (selectedRecipe?.cookTime ?: "") else "",
+                        initialServings = if (isEditMode) (selectedRecipe?.servings?.toString() ?: "") else "",
+                        initialImageUri = if (isEditMode) (selectedRecipe?.imageUrl ?: "") else "",
+                        initialIngredients = if (isEditMode && currentDetail != null && currentDetail.ingredients.isNotEmpty()) {
+                            currentDetail.ingredients.mapIndexed { index, ingredient ->
+                                IngredientInput(
+                                    id = index,
+                                    name = ingredient.name,
+                                    qty = ingredient.quantity,
+                                    unit = ingredient.unit
+                                )
+                            }
+                        } else {
+                            listOf(IngredientInput(0))
+                        },
+                        initialSteps = if (isEditMode && currentDetail != null && currentDetail.steps.isNotEmpty()) {
+                            currentDetail.steps.mapIndexed { index, step ->
+                                StepInput(index, step.instruction)
+                            }
+                        } else if (isEditMode && selectedRecipe != null) {
+                            val instructions = selectedRecipe.instructions
+                            val stepTexts = instructions.split("\n").filter { it.isNotBlank() }
+                            if (stepTexts.isNotEmpty()) {
+                                stepTexts.mapIndexed { index, text ->
+                                    StepInput(index, text.trim())
+                                }
+                            } else {
+                                listOf(StepInput(0))
                             }
                         } else {
                             listOf(StepInput(0))
+                        },
+                        onBack = { navController.popBackStack() },
+                        onSave = { name, category, cookTime, servings, ingredients, steps, imageUri ->
+                            val combinedInstructions = steps.joinToString(separator = "\n") { it.instruction.trim() }
+                            val domainIngredients = ingredients.filter { it.name.isNotBlank() }.map { Ingredient(name = it.name.trim(), quantity = it.qty.trim(), unit = it.unit.trim()) }
+                            val domainSteps = steps.filter { it.instruction.isNotBlank() }.mapIndexed { index, step -> CookingStep(stepNumber = index + 1, instruction = step.instruction.trim()) }
+                            
+                            val finalCookTime = cookTime.trim().ifEmpty { context.getString(com.example.recipebox.R.string.default_cook_time) }
+                            val finalServings = servings.trim().toIntOrNull() ?: 2
+    
+                            if (isEditMode && currentDetail != null) {
+                                val updatedRecipe = currentDetail.copy(
+                                    name = name.trim(),
+                                    category = category.trim(),
+                                    cookTime = finalCookTime,
+                                    servings = finalServings,
+                                    description = combinedInstructions,
+                                    imageUrl = imageUri.ifBlank { currentDetail.imageUrl },
+                                    ingredients = domainIngredients,
+                                    steps = domainSteps
+                                )
+                                myRecipesViewModel.updatePersonalRecipe(updatedRecipe)
+                            } else {
+                                val newDetail = RecipeDetail(
+                                    id = java.util.UUID.randomUUID().toString(),
+                                    name = name.trim(),
+                                    category = category.trim(),
+                                    imageUrl = imageUri,
+                                    cookTime = finalCookTime,
+                                    servings = finalServings,
+                                    summary = "",
+                                    description = combinedInstructions,
+                                    ingredients = domainIngredients,
+                                    steps = domainSteps,
+                                    isBookmarked = false,
+                                    isPersonal = true
+                                )
+                                myRecipesViewModel.addPersonalRecipe(newDetail)
+                            }
+                            navController.popBackStack()
                         }
-                    } else {
-                        listOf(StepInput(0))
-                    },
-                    onBack = { showAddEdit = false },
-                    onSave = { name, category, ingredients, steps, imageUri ->
-                        val combinedInstructions = steps.joinToString(separator = "\n") { it.instruction }
-                        val domainIngredients = ingredients.filter { it.name.isNotBlank() }.map { Ingredient(name = it.name, quantity = it.qty, unit = it.unit) }
-                        val domainSteps = steps.filter { it.instruction.isNotBlank() }.mapIndexed { index, step -> CookingStep(stepNumber = index + 1, instruction = step.instruction) }
-                        
-                        if (isEditMode && currentDetail != null) {
-                            val updatedRecipe = currentDetail.copy(
-                                name = name,
-                                category = category,
-                                description = combinedInstructions,
-                                imageUrl = imageUri.ifBlank { currentDetail.imageUrl },
-                                ingredients = domainIngredients,
-                                steps = domainSteps
-                            )
-                            viewModel.updatePersonalRecipe(updatedRecipe)
-                        } else {
-                            val newDetail = RecipeDetail(
-                                id = UUID.randomUUID().toString(),
-                                name = name,
-                                category = category,
-                                imageUrl = imageUri,
-                                cookTime = "20 mins",
-                                servings = 2,
-                                summary = "",
-                                description = combinedInstructions,
-                                ingredients = domainIngredients,
-                                steps = domainSteps,
-                                isBookmarked = false,
-                                isPersonal = true
-                            )
-                            viewModel.addPersonalRecipe(newDetail)
-                        }
-                        showAddEdit = false
-                    }
-                )
+                    )
+                }
             }
         }
     }

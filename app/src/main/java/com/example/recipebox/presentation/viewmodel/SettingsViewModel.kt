@@ -60,18 +60,21 @@ class SettingsViewModel @Inject constructor(
         val newLang = if (_language.value == Language.ID) Language.EN else Language.ID
         _language.value = newLang
         
-        // Update App Locale using Android standard
-        val localeList = LocaleListCompat.forLanguageTags(newLang.code)
-        AppCompatDelegate.setApplicationLocales(localeList)
-
-        viewModelScope.launch { dataStore.saveLanguage(newLang.code) }
+        viewModelScope.launch {
+            dataStore.saveLanguage(newLang.code)
+            // Update App Locale using Android standard
+            val localeList = LocaleListCompat.forLanguageTags(newLang.code)
+            AppCompatDelegate.setApplicationLocales(localeList)
+        }
     }
 
     fun setLanguage(lang: Language) {
         _language.value = lang
-        val localeList = LocaleListCompat.forLanguageTags(lang.code)
-        AppCompatDelegate.setApplicationLocales(localeList)
-
-        viewModelScope.launch { dataStore.saveLanguage(lang.code) }
+        
+        viewModelScope.launch { 
+            dataStore.saveLanguage(lang.code)
+            val localeList = LocaleListCompat.forLanguageTags(lang.code)
+            AppCompatDelegate.setApplicationLocales(localeList)
+        }
     }
 }

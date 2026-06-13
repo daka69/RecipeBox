@@ -97,4 +97,12 @@
     <string name="generatePlan">Generate Plan</string>
     <string name="dailyNutrition">Total Daily Nutrition</string>
     <string name="minutes">Minutes</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_meal_plan">Meal Plan</string>
+    <string name="nav_my_recipes">My Recipes</string>
+    <string name="nav_settings">Settings</string>
+    <string name="error_load_recipes">Failed to load recipes. Please check your internet connection.</string>
+    <string name="trivia_fallback">Did you know? Cooking at home can improve your diet and save money!</string>
+    <string name="default_cook_time">20 mins</string>
 </resources>

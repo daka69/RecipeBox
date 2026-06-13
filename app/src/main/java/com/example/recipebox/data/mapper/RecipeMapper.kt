@@ -16,7 +16,7 @@ fun RecipeEntity.toDomainModel(): Recipe {
         servings = servings,
         instructions = instructions,
         isBookmarked = isBookmarked,
-        isPersonal = !id.all { char -> char.isDigit() }
+        isPersonal = id.contains("-")
     )
 }
 
@@ -45,7 +45,7 @@ fun RecipeEntity.toDomainDetailModel(converters: Converters): RecipeDetail {
         isGlutenFree = isGlutenFree,
         isDairyFree = isDairyFree,
         isBookmarked = isBookmarked,
-        isPersonal = !id.all { char -> char.isDigit() }
+        isPersonal = id.contains("-")
     )
 }
 

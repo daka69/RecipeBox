@@ -17,6 +17,11 @@ class RecipeRepositoryImpl(
     private val converters: com.example.recipebox.data.local.Converters
 ) : RecipeRepository {
 
+    private fun isApiRecipe(id: String): Boolean {
+        // API recipes from Spoonacular use integer IDs, personal recipes use UUIDs containing hyphens
+        return !id.contains("-")
+    }
+
     override suspend fun getPublicRecipes(): List<Recipe> {
         return try {
             val response = apiService.getRandomRecipes(number = 50)
@@ -66,9 +71,7 @@ class RecipeRepositoryImpl(
     }
 
     override suspend fun getRecipeDetailById(id: String): RecipeDetail? {
-        val isNumericId = id.all { it.isDigit() }
-
-        if (isNumericId) {
+        if (isApiRecipe(id)) {
             // It's an API recipe. Try to fetch from Spoonacular API first for full details.
             try {
                 val dto = apiService.getRecipeById(id)
@@ -176,10 +179,9 @@ class RecipeRepositoryImpl(
 
     override suspend fun toggleBookmark(recipeId: String, isBookmarked: Boolean) {
         val existing = dao.getRecipeById(recipeId)
-        val isNumericId = recipeId.all { it.isDigit() }
 
         if (existing != null) {
-            if (!isBookmarked && isNumericId) {
+            if (!isBookmarked && isApiRecipe(recipeId)) {
                 // Remove API recipe from cache when unbookmarked
                 dao.deleteRecipe(existing)
             } else {

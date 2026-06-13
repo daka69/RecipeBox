@@ -90,7 +90,7 @@
     <string name="next">Selanjutnya →</string>
     <string name="getStarted">Mulai</string>
 
-    <string name="mealPlanTitle">Rencana Makan (Meal Plan)</string>
+        <string name="mealPlanTitle">Rencana Makan (Meal Plan)</string>
     <string name="mealPlanDesc">Buat jadwal sarapan, siang, dan malam sesuai kalori harianmu.</string>
     <string name="targetCalories">Target Kalori (kkal)</string>
     <string name="dietType">Tipe Diet</string>

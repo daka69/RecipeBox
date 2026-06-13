@@ -47,17 +47,21 @@ fun TambahEditResepScreen(
     isEditMode: Boolean = false,
     initialName: String = "",
     initialCategory: String = "",
+    initialCookTime: String = "",
+    initialServings: String = "",
     initialImageUri: String = "",
     initialIngredients: List<IngredientInput> = listOf(IngredientInput(0)),
     initialSteps: List<StepInput> = listOf(StepInput(0)),
     onBack: () -> Unit = {},
-    onSave: (name: String, category: String, ingredients: List<IngredientInput>, steps: List<StepInput>, imageUri: String) -> Unit = { _, _, _, _, _ -> }
+    onSave: (name: String, category: String, cookTime: String, servings: String, ingredients: List<IngredientInput>, steps: List<StepInput>, imageUri: String) -> Unit = { _, _, _, _, _, _, _ -> }
 ) {
     val context = LocalContext.current
     val categories = listOf("Antipasti", "Appetizer", "Beverage", "Bread", "Breakfast", "Dessert", "Dinner", "Drink", "Fingerfood", "Lunch", "Main Course", "Salad", "Sauce", "Side Dish", "Snack", "Soup")
 
     var recipeName by remember { mutableStateOf(initialName) }
     var selectedCategory by remember { mutableStateOf(initialCategory) }
+    var cookTime by remember { mutableStateOf(initialCookTime) }
+    var servings by remember { mutableStateOf(initialServings) }
     var categoryExpanded by remember { mutableStateOf(false) }
     var ingredients by remember { mutableStateOf(initialIngredients) }
     var steps by remember { mutableStateOf(initialSteps) }
@@ -239,6 +243,8 @@ fun TambahEditResepScreen(
                             onSave(
                                 recipeName,
                                 selectedCategory,
+                                cookTime,
+                                servings,
                                 ingredients,
                                 steps,
                                 selectedImageUri?.toString() ?: ""
@@ -404,7 +410,7 @@ fun TambahEditResepScreen(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor(),
+                            .menuAnchor(MenuAnchorType.PrimaryNotEditable),
                         isError = categoryError,
                         supportingText = {
                             if (categoryError) Text(stringResource(R.string.categoryRequired), color = MaterialTheme.colorScheme.primary)
@@ -431,6 +437,65 @@ fun TambahEditResepScreen(
                                 }
                             )
                         }
+                    }
+                }
+            }
+
+            // Cook Time and Servings
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Cook Time
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            "Waktu Memasak",
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 15.sp,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = cookTime,
+                            onValueChange = { cookTime = it },
+                            placeholder = { Text("e.g. 30 mins", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        )
+                    }
+
+                    // Servings
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            "Porsi",
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 15.sp,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = servings,
+                            onValueChange = { servings = it },
+                            placeholder = { Text("e.g. 2", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            singleLine = true,
+                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        )
                     }
                 }
             }

@@ -71,7 +71,7 @@ fun MealPlanScreen(
                     label = { Text(stringResource(R.string.dietType)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     modifier = Modifier
-                        .menuAnchor()
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                         .fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 )
