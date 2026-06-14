@@ -12,18 +12,9 @@ Dibangun dengan arsitektur **MVVM + Clean Architecture**, menggunakan **Jetpack 
 |:---:|:---:|:---:|:---:|
 | <img src="screenshots/onboarding.jpeg" height="400" alt="Onboarding"/> | <img src="screenshots/home.jpeg" height="400" alt="Home Screen"/> | <img src="screenshots/detail.jpeg" height="400" alt="Recipe Detail"/> | <img src="screenshots/my_recipes.jpeg" height="400" alt="My Recipes"/> |
 
-<<<<<<< HEAD
 | Pencarian | Meal Plan | Tambah Resep | Pengaturan |
 |:---:|:---:|:---:|:---:|
 | <img src="screenshots/search.jpeg" height="400" alt="Search"/> | <img src="screenshots/meal_plan.jpeg" height="400" alt="Meal Plan"/> | <img src="screenshots/add_recipe.jpeg" height="400" alt="Add Recipe"/> | <img src="screenshots/settings.jpeg" height="400" alt="Settings"/> |
-=======
-<p align="center">
-  <img src="screenshots/search.jpeg" width="200" alt="Search"/>
-  <img src="screenshots/meal_plan.jpeg" width="200" alt="Meal Plan"/>
-  <img src="screenshots/add_recipe.jpeg" width="200" alt="Add Recipe"/>
-  <img src="screenshots/setting.jpeg" width="200" alt="Settings"/>
-</p>
->>>>>>> 16fde7580eb64a67321676472655311d6ff14af5
 
 ---
 
