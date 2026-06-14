@@ -43,6 +43,12 @@
     <string name="yesDelete">Yes, Delete</string>
     <string name="cancel">Cancel</string>
     <string name="servings">servings</string>
+    <string name="cookTimeTitle">Cook Time</string>
+    <string name="cookTimePlaceholder">e.g. 30 mins</string>
+    <string name="servingsTitle">Servings</string>
+    <string name="servingsPlaceholder">e.g. 2</string>
+    <string name="errorCameraPermission">Camera permission is required to take photos</string>
+    <string name="errorIncompleteRecipe">Please complete all Ingredients and Cooking Steps</string>
     <string name="offlineIngredients">Ingredients are not available offline.</string>
 
     <string name="recipeSearch">Recipe Search</string>

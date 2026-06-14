@@ -43,6 +43,12 @@
     <string name="yesDelete">Ya, Hapus</string>
     <string name="cancel">Batal</string>
     <string name="servings">porsi</string>
+    <string name="cookTimeTitle">Waktu Memasak</string>
+    <string name="cookTimePlaceholder">misal: 30 menit</string>
+    <string name="servingsTitle">Porsi</string>
+    <string name="servingsPlaceholder">misal: 2</string>
+    <string name="errorCameraPermission">Izin kamera diperlukan untuk mengambil foto</string>
+    <string name="errorIncompleteRecipe">Mohon lengkapi seluruh Bahan dan Instruksi Memasak</string>
     <string name="offlineIngredients">Bahan-bahan tidak tersedia secara offline.</string>
 
     <string name="recipeSearch">Pencarian Resep</string>

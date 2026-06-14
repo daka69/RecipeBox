@@ -33,7 +33,7 @@ class RecipeRepositoryImpl(
                     imageUrl = dto.image ?: "",
                     cookTime = dto.getCookTimeFormatted(),
                     servings = dto.servings,
-                    instructions = dto.getCleanInstructions(),
+                    instructions = dto.getSmartInstructionsString(),
                     isBookmarked = false,
                     isPersonal = false
                 )
@@ -41,17 +41,25 @@ class RecipeRepositoryImpl(
 
             // Cache the fetched recipes
             dao.clearCachedPublicRecipes()
-            val entitiesToCache = recipes.map { r ->
+            val entitiesToCache = response.recipes.map { dto ->
                 RecipeEntity(
-                    id = r.id,
-                    name = r.name,
-                    category = r.category,
-                    imageUrl = r.imageUrl,
-                    cookTime = r.cookTime,
-                    servings = r.servings,
-                    instructions = r.instructions,
+                    id = dto.id.toString(),
+                    name = dto.title,
+                    category = dto.getCategory(),
+                    imageUrl = dto.image ?: "",
+                    cookTime = dto.getCookTimeFormatted(),
+                    servings = dto.servings,
+                    instructions = dto.getSmartInstructionsString(),
                     isBookmarked = false,
-                    isCachedPublic = true
+                    isCachedPublic = true,
+                    ingredientsJson = converters.fromIngredientList(dto.toIngredientList()),
+                    summary = dto.getCleanSummary(),
+                    nutritionJson = converters.fromNutritionInfo(dto.toNutritionInfo()),
+                    healthScore = dto.healthScore.toInt(),
+                    isVegetarian = dto.vegetarian,
+                    isVegan = dto.vegan,
+                    isGlutenFree = dto.glutenFree,
+                    isDairyFree = dto.dairyFree
                 )
             }
             dao.insertRecipes(entitiesToCache)
@@ -77,34 +85,12 @@ class RecipeRepositoryImpl(
                 val dto = apiService.getRecipeById(id)
                 val ingredients = dto.toIngredientList()
 
-                // Get raw steps strings from analyzedInstructions, or fallback to full instructions text
-                val rawStrings = dto.analyzedInstructions
-                    ?.flatMap { group -> group.steps }
-                    ?.map { it.step }
-                    ?.takeIf { it.isNotEmpty() }
-                    ?: listOf(dto.getCleanInstructions())
-
-                val allSteps = mutableListOf<String>()
-                rawStrings.forEach { text ->
-                    var cleanText = text.replace(Regex("(?<=[a-zA-Z])\\.(?=\\d+\\.?)"), ". ")
-                    cleanText = cleanText.replace(Regex("(?<=\\d)\\.(?=[a-zA-Z])"), ". ")
-                    cleanText = cleanText.replace(Regex("(?<=[a-z])\\.(?=[A-Z])"), ". ")
-
-                    val parts = cleanText.split(Regex("(?<=\\s|^)\\d+\\.\\s"))
-                        .map { it.trim() }
-                        .filter { it.length > 2 }
-                    
-                    if (parts.isEmpty()) {
-                        if (cleanText.isNotBlank()) allSteps.add(cleanText.trim())
-                    } else {
-                        allSteps.addAll(parts)
-                    }
-                }
-
-                val steps = allSteps
+                // Smartly parse and split instructions
+                val smartInstructions = dto.getSmartInstructionsString()
+                val steps = smartInstructions.split("\n")
                     .filter { it.isNotBlank() }
                     .mapIndexed { index, instruction ->
-                        CookingStep(stepNumber = index + 1, instruction = instruction)
+                        CookingStep(stepNumber = index + 1, instruction = instruction.trim())
                     }
 
                 val localRecipe = dao.getRecipeById(dto.id.toString())
@@ -118,7 +104,7 @@ class RecipeRepositoryImpl(
                     cookTime = dto.getCookTimeFormatted(),
                     servings = dto.servings,
                     summary = dto.getCleanSummary(),
-                    description = dto.getCleanInstructions(),
+                    description = dto.getSmartInstructionsString(),
                     ingredients = ingredients,
                     steps = steps,
                     nutrition = dto.toNutritionInfo(),

@@ -85,7 +85,7 @@ fun DetailResepScreen(
                     IconButton(onClick = {
                         val shareIntent = android.content.Intent().apply {
                             action = android.content.Intent.ACTION_SEND
-                            putExtra(android.content.Intent.EXTRA_TEXT, "Lihat resep ${recipe.name} yang lezat ini! Buka di aplikasi Recipe Box: recipebox://detail/${recipe.id}")
+                            putExtra(android.content.Intent.EXTRA_TEXT, "Lihat resep ${recipe.name} yang lezat ini! Buka di aplikasi Recipe Box: https://www.recipebox.app/detail/${recipe.id}")
                             type = "text/plain"
                         }
                         context.startActivity(android.content.Intent.createChooser(shareIntent, "Bagikan Resep"))

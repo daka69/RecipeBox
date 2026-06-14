@@ -35,12 +35,10 @@ class SettingsViewModel @Inject constructor(
         }
         viewModelScope.launch {
             dataStore.language.collect { langCode ->
-                val lang = if (langCode == "id") Language.ID else Language.EN
-                if (_language.value != lang) {
-                    _language.value = lang
-                    val localeList = LocaleListCompat.forLanguageTags(lang.code)
-                    AppCompatDelegate.setApplicationLocales(localeList)
-                }
+                val lang = if (langCode == "id" || langCode == "in") Language.ID else Language.EN
+                _language.value = lang
+                val localeList = LocaleListCompat.forLanguageTags(lang.code)
+                AppCompatDelegate.setApplicationLocales(localeList)
             }
         }
     }

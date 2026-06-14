@@ -105,7 +105,7 @@ fun TambahEditResepScreen(
             cameraImageUri = uri
             cameraLauncher.launch(uri)
         } else {
-            android.widget.Toast.makeText(context, "Izin kamera diperlukan untuk mengambil foto", android.widget.Toast.LENGTH_SHORT).show()
+            android.widget.Toast.makeText(context, context.getString(R.string.errorCameraPermission), android.widget.Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -252,7 +252,7 @@ fun TambahEditResepScreen(
                         } else if (!isIngredientsValid || !isStepsValid) {
                             android.widget.Toast.makeText(
                                 context, 
-                                "Mohon lengkapi seluruh Bahan dan Instruksi Memasak", 
+                                context.getString(R.string.errorIncompleteRecipe), 
                                 android.widget.Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -450,7 +450,7 @@ fun TambahEditResepScreen(
                     // Cook Time
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            "Waktu Memasak",
+                            stringResource(R.string.cookTimeTitle),
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 15.sp,
                             color = MaterialTheme.colorScheme.onBackground
@@ -459,7 +459,7 @@ fun TambahEditResepScreen(
                         OutlinedTextField(
                             value = cookTime,
                             onValueChange = { cookTime = it },
-                            placeholder = { Text("e.g. 30 mins", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                            placeholder = { Text(stringResource(R.string.cookTimePlaceholder), color = MaterialTheme.colorScheme.onSurfaceVariant) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp),
                             singleLine = true,
@@ -475,7 +475,7 @@ fun TambahEditResepScreen(
                     // Servings
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            "Porsi",
+                            stringResource(R.string.servingsTitle),
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 15.sp,
                             color = MaterialTheme.colorScheme.onBackground
@@ -484,7 +484,7 @@ fun TambahEditResepScreen(
                         OutlinedTextField(
                             value = servings,
                             onValueChange = { servings = it },
-                            placeholder = { Text("e.g. 2", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                            placeholder = { Text(stringResource(R.string.servingsPlaceholder), color = MaterialTheme.colorScheme.onSurfaceVariant) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp),
                             singleLine = true,

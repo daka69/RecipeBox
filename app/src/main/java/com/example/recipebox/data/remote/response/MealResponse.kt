@@ -77,6 +77,32 @@ data class SpoonacularRecipeDto(
             ?: ""
     }
 
+    fun getSmartInstructionsString(): String {
+        val rawStrings = analyzedInstructions
+            ?.flatMap { group -> group.steps }
+            ?.map { it.step }
+            ?.takeIf { it.isNotEmpty() }
+            ?: listOf(getCleanInstructions())
+
+        val allSteps = mutableListOf<String>()
+        rawStrings.forEach { text ->
+            var cleanText = text.replace(Regex("(?<=[a-zA-Z])\\.(?=\\d+\\.?)"), ". ")
+            cleanText = cleanText.replace(Regex("(?<=\\d)\\.(?=[a-zA-Z])"), ". ")
+            cleanText = cleanText.replace(Regex("(?<=[a-z])\\.(?=[A-Z])"), ". ")
+
+            val parts = cleanText.split(Regex("(?<=\\s|^)\\d+\\.\\s"))
+                .map { it.trim() }
+                .filter { it.length > 2 }
+            
+            if (parts.isEmpty()) {
+                if (cleanText.isNotBlank()) allSteps.add(cleanText.trim())
+            } else {
+                allSteps.addAll(parts)
+            }
+        }
+        return allSteps.joinToString("\n")
+    }
+
     fun getCookTimeFormatted(): String {
         return if (readyInMinutes > 60) {
             val hours = readyInMinutes / 60

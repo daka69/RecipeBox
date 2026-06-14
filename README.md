@@ -9,17 +9,17 @@ Dibangun dengan arsitektur **MVVM + Clean Architecture**, menggunakan **Jetpack 
 ## 📸 Screenshot Aplikasi
 
 <p align="center">
-  <img src="screenshots/onboarding.png" width="200" alt="Onboarding"/>
-  <img src="screenshots/home.png" width="200" alt="Home Screen"/>
-  <img src="screenshots/detail.png" width="200" alt="Recipe Detail"/>
-  <img src="screenshots/my_recipes.png" width="200" alt="My Recipes"/>
+  <img src="screenshots/onboarding.jpeg" width="200" alt="Onboarding"/>
+  <img src="screenshots/home.jpeg" width="200" alt="Home Screen"/>
+  <img src="screenshots/detail.jpeg" width="200" alt="Recipe Detail"/>
+  <img src="screenshots/my_recipes.jpeg" width="200" alt="My Recipes"/>
 </p>
 
 <p align="center">
-  <img src="screenshots/search.png" width="200" alt="Search"/>
-  <img src="screenshots/meal_plan.png" width="200" alt="Meal Plan"/>
-  <img src="screenshots/add_recipe.png" width="200" alt="Add Recipe"/>
-  <img src="screenshots/settings.png" width="200" alt="Settings"/>
+  <img src="screenshots/search.jpeg" width="200" alt="Search"/>
+  <img src="screenshots/meal_plan.jpeg" width="200" alt="Meal Plan"/>
+  <img src="screenshots/add_recipe.jpeg" width="200" alt="Add Recipe"/>
+  <img src="screenshots/settings.jpeg" width="200" alt="Settings"/>
 </p>
 
 > **Catatan:** Tambahkan screenshot ke folder `screenshots/` di root project.

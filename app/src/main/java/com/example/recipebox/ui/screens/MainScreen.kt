@@ -168,7 +168,11 @@ fun RecipeBoxApp(
                 }
                             composable(
                     route = Screen.Detail.route,
-                    deepLinks = listOf(navDeepLink { uriPattern = "recipebox://detail/{recipeId}" })
+                    deepLinks = listOf(
+                        navDeepLink { uriPattern = "recipebox://detail/{recipeId}" },
+                        navDeepLink { uriPattern = "https://www.recipebox.app/detail/{recipeId}" },
+                        navDeepLink { uriPattern = "http://www.recipebox.app/detail/{recipeId}" }
+                    )
                 ) { backStackEntry ->
                     val recipeId = backStackEntry.arguments?.getString("recipeId")
                     
@@ -330,6 +334,7 @@ fun RecipeBoxApp(
                                     steps = domainSteps
                                 )
                                 myRecipesViewModel.updatePersonalRecipe(updatedRecipe)
+                                navController.popBackStack()
                             } else {
                                 val newDetail = RecipeDetail(
                                     id = java.util.UUID.randomUUID().toString(),
@@ -346,8 +351,15 @@ fun RecipeBoxApp(
                                     isPersonal = true
                                 )
                                 myRecipesViewModel.addPersonalRecipe(newDetail)
+                                navController.popBackStack()
+                                navController.navigate(Screen.MyRecipes.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
                             }
-                            navController.popBackStack()
                         }
                     )
                 }
