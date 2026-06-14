@@ -20,97 +20,45 @@ Dibangun dengan arsitektur **MVVM + Clean Architecture**, menggunakan **Jetpack 
 
 ## ✨ Penjelasan Fitur
 
-### 🎬 Onboarding (Layar Sambutan)
-Saat pengguna **pertama kali** membuka aplikasi, mereka akan disambut oleh 3 layar perkenalan yang bisa digeser (swipe). Setiap layar menjelaskan keunggulan utama aplikasi:
-1. **Discover Recipes** — Jelajahi ribuan resep dari seluruh dunia.
-2. **Save Your Recipes** — Simpan dan kelola koleksi resep pribadi.
-3. **Cook Anywhere** — Akses resep secara offline kapan saja, di mana saja.
-
-Layar onboarding ini **hanya muncul sekali**. Setelah pengguna menyelesaikannya, status tersebut disimpan di `DataStore Preferences` sehingga tidak akan muncul lagi di pembukaan berikutnya.
-
----
-
 ### 🏠 Home (Beranda)
-Halaman utama yang menjadi pusat inspirasi memasak. Berikut rincian setiap elemennya:
-
-- **Banner Food Trivia ("Did You Know?")** — Di bagian atas beranda, terdapat kartu fakta unik seputar makanan yang diambil secara acak dari endpoint `/food/trivia/random`. Jika bahasa aplikasi diatur ke Bahasa Indonesia, teks trivia akan **diterjemahkan secara otomatis** menggunakan Google ML Kit (terjemahan dilakukan langsung di perangkat, tanpa perlu internet setelah model bahasa diunduh). Jika API gagal, sistem menampilkan trivia cadangan (fallback) dari `strings.xml`.
-- **Chip Filter Kategori** — Deretan tombol kategori horizontal (All, Main Course, Dessert, Side Dish, Appetizer, Salad, Beverage, dll) yang memungkinkan pengguna menyaring daftar resep berdasarkan jenis masakan yang diinginkan.
-- **Grid Resep Populer** — Menampilkan hingga **50 resep acak** dalam format grid 2 kolom yang diambil dari Spoonacular API. Setiap kartu resep menampilkan foto masakan, nama resep, serta estimasi waktu memasak. Data resep ini **di-cache ke Room Database** secara otomatis, sehingga jika pengguna membuka aplikasi tanpa koneksi internet, daftar resep terakhir tetap bisa ditampilkan.
-- **Tombol Tambah (+)** — Floating Action Button di sudut kanan bawah yang menjadi jalan pintas untuk langsung membuat resep baru.
-
----
+- Menampilkan daftar **50 resep acak** dari Spoonacular API.
+- Filter resep berdasarkan **kategori** (Main Course, Dessert, Side Dish, dll).
+- Menampilkan **trivia makanan** acak yang menarik dengan dukungan terjemahan otomatis.
+- Fallback ke **cache lokal** jika tidak ada koneksi internet.
 
 ### 🔍 Search (Pencarian)
-Halaman pencarian yang dirancang untuk menemukan resep secara cepat dan akurat:
+- Pencarian resep secara real-time berdasarkan **nama resep**.
+- Filter berdasarkan **kategori** yang tersedia.
+- Menampilkan jumlah resep yang ditemukan.
 
-- **Pencarian Real-Time** — Pengguna cukup mengetikkan nama resep di bilah pencarian, dan hasil akan langsung muncul secara instan saat mengetik (tanpa perlu menekan tombol cari). Pencarian dilakukan ke endpoint `/recipes/complexSearch` menggunakan Retrofit.
-- **Filter Kategori** — Sama seperti di beranda, deretan chip kategori tersedia untuk mempersempit hasil pencarian. Pengguna bisa menggabungkan kata kunci dengan kategori tertentu.
-- **Jumlah Hasil** — Di bawah bilah pencarian, sistem menampilkan jumlah total resep yang ditemukan (contoh: "12 recipes found").
-- **Empty State** — Jika belum ada pencarian, ditampilkan ilustrasi informatif dengan teks "Find your favorite recipes" beserta panduan singkat. Jika pencarian tidak menemukan hasil, ditampilkan teks "Recipe not found" disertai saran untuk mencoba kata kunci lain.
-
----
-
-### 📅 Meal Plan (Rencana Makan Harian)
-Fitur asisten nutrisi otomatis yang membantu pengguna merencanakan menu harian:
-
-- **Input Target Kalori** — Pengguna memasukkan target kalori harian yang diinginkan (contoh: 2000 kkal). Ini akan menjadi acuan bagi sistem untuk menghitung pembagian nutrisi di setiap waktu makan.
-- **Pilihan Tipe Diet** — Tersedia dropdown menu dengan berbagai opsi diet: None (tanpa batasan), Vegetarian, Vegan, Gluten Free, Ketogenic, Paleo, dan lainnya.
-- **Tombol Generate Plan** — Setelah pengguna menekan tombol ini, sistem mengirim request ke endpoint `/mealplanner/generate` dari Spoonacular API. Hasil yang ditampilkan mencakup:
-  - **Total Nutrisi Harian** — Kartu ringkasan yang menampilkan total Kalori, Protein, Karbohidrat, dan Lemak dari seluruh resep yang direkomendasikan.
-  - **3 Rekomendasi Resep** — Satu resep untuk sarapan, satu untuk makan siang, dan satu untuk makan malam. Setiap kartu menampilkan foto, nama resep, estimasi waktu memasak, dan jumlah porsi. Kartu bisa ditekan untuk masuk ke halaman detail resep tersebut.
-
----
-
-### 📝 Detail Resep
-Halaman yang menampilkan informasi resep secara lengkap dan mendetail. Terdapat dua jenis halaman detail:
-
-**A. Detail Resep Publik (dari API)**
-- **Gambar Resep** — Foto masakan berkualitas tinggi yang dimuat menggunakan Coil Image Loader dengan caching otomatis.
-- **Info Ringkas** — Chip kecil yang menampilkan estimasi waktu memasak (menit), jumlah porsi, dan skor kesehatan (Health Score).
-- **Tentang Hidangan** — Deskripsi singkat mengenai masakan, asal-usul, dan karakteristiknya. Teks ini otomatis **diterjemahkan ke Bahasa Indonesia** jika pengaturan bahasa aktif menggunakan ML Kit Translation.
-- **Bahan-bahan (Ingredients)** — Daftar lengkap bahan masakan beserta takaran. Data ini diambil dari response API `extendedIngredients` dan **di-cache ke Room Database** agar tetap tersedia saat offline.
-- **Langkah Memasak (Cooking Steps)** — Instruksi memasak yang dipecah menjadi langkah-langkah bernomor. Sistem menggunakan logika **smart parsing** (`getSmartInstructionsString()`) yang mampu memproses berbagai format instruksi dari API (baik yang sudah terstruktur maupun yang masih berbentuk paragraf panjang) dan menyajikannya dalam format yang rapi dan mudah dibaca.
-- **Informasi Gizi (Nutrition Info)** — Rincian kandungan gizi per porsi: Kalori, Lemak, Karbohidrat, dan Protein.
-- **Label Diet** — Indikator visual yang menunjukkan apakah resep tersebut Vegetarian, Vegan, Gluten Free, atau Dairy Free.
-- **Tombol Bookmark** — Ikon di bagian atas yang memungkinkan pengguna menyimpan resep ke daftar favorit lokal (Room Database) sehingga bisa diakses kapan saja tanpa internet.
-- **Tombol Share** — Membagikan resep ke aplikasi lain (WhatsApp, Telegram, dll) melalui mekanisme Android Intent Share, mengirimkan nama dan link resep.
-
-**B. Detail Resep Pribadi (dari Room Database)**
-- Menampilkan informasi yang sama seperti di atas, namun data diambil dari penyimpanan lokal perangkat.
-- Terdapat tombol **Edit** (ikon pensil) untuk mengubah resep dan tombol **Hapus** (ikon tempat sampah) dengan dialog konfirmasi ganda agar pengguna tidak secara tidak sengaja menghapus resepnya.
-
----
+### 📅 Meal Plan (Rencana Makan)
+- Generate rencana makan harian otomatis (sarapan, makan siang, makan malam).
+- Kustomisasi berdasarkan **target kalori** harian.
+- Pilihan **tipe diet** (Vegetarian, Vegan, Gluten Free, dll).
+- Menampilkan **total nutrisi harian** (kalori, protein, lemak, karbohidrat).
 
 ### 📖 My Recipes (Resep Saya)
-Perpustakaan resep luring (offline) milik pengguna, dibagi menjadi dua tab:
+- **Tab Buatan Sendiri**: Kelola resep personal yang Anda buat.
+- **Tab Tersimpan**: Lihat resep dari API yang telah di-bookmark.
+- Fitur **tambah, edit, dan hapus** resep personal.
+- Upload foto resep dari **galeri** atau **kamera**.
 
-**Tab "Buatan Sendiri" (My Creations)**
-- Menampilkan semua resep yang dibuat langsung oleh pengguna melalui formulir.
-- Setiap kartu resep memiliki ikon **hapus** (🗑️) di sudut kanan atas untuk penghapusan cepat.
-- Menekan kartu akan membuka halaman Detail Resep Pribadi (bisa diedit dan dihapus).
-
-**Tab "Tersimpan" (Saved)**
-- Menampilkan resep publik dari API yang telah di-bookmark oleh pengguna.
-- Resep tersimpan ini telah di-cache secara penuh (termasuk bahan-bahan dan langkah memasak), sehingga **tetap bisa dibuka meskipun tanpa koneksi internet**.
-
-**Formulir Tambah / Edit Resep**
-- **Upload Foto** — Pengguna bisa memilih foto dari galeri atau mengambil langsung dari kamera perangkat. Foto disimpan di penyimpanan internal aplikasi.
-- **Nama Resep** — Kolom teks wajib diisi, dengan validasi agar tidak boleh kosong.
-- **Kategori** — Dropdown menu untuk memilih kategori resep (Main Course, Dessert, dll).
-- **Waktu Memasak & Porsi** — Kolom input yang telah mendukung lokalisasi penuh (tampil dalam Bahasa Indonesia atau Inggris sesuai pengaturan).
-- **Bahan-bahan (Dinamis)** — Pengguna bisa menambah baris bahan secara tak terbatas. Setiap baris berisi kolom Nama Bahan, Jumlah, dan Satuan. Baris bisa dihapus secara individual.
-- **Langkah Memasak (Dinamis)** — Sama seperti bahan, pengguna bisa menambah langkah instruksi tanpa batas dan menghapusnya secara individual.
-- **Validasi** — Sistem melakukan pengecekan sebelum menyimpan: nama resep wajib diisi, kategori wajib dipilih, dan semua kolom bahan serta langkah tidak boleh ada yang kosong. Jika ada yang belum lengkap, ditampilkan notifikasi Toast.
-- **Navigasi Setelah Simpan** — Setelah berhasil menyimpan, pengguna langsung diarahkan ke halaman **Resep Saya** (bukan kembali ke beranda) agar bisa langsung memverifikasi bahwa resep berhasil tersimpan.
-
----
+### 📝 Detail Resep
+- Informasi lengkap: deskripsi, bahan-bahan, langkah memasak.
+- **Informasi gizi** (kalori, lemak, karbohidrat, protein).
+- **Skor kesehatan** dan label diet (Vegetarian, Vegan, Gluten Free, Dairy Free).
+- Tombol **bookmark** untuk menyimpan resep favorit.
+- Tombol **share** untuk membagikan resep ke aplikasi lain.
+- **Terjemahan otomatis** ke Bahasa Indonesia (menggunakan ML Kit on-device).
 
 ### ⚙️ Settings (Pengaturan)
-Pusat kendali personalisasi aplikasi:
+- Toggle **Dark Mode** / Light Mode.
+- Pergantian **bahasa** (English / Bahasa Indonesia) secara instan tanpa restart.
+- Halaman **Tentang Aplikasi** dengan informasi teknologi yang digunakan.
 
-- **Dark Mode** — Toggle switch untuk mengaktifkan atau menonaktifkan mode gelap. Perubahan tema langsung diterapkan ke seluruh halaman secara instan, termasuk warna Status Bar perangkat yang otomatis menyesuaikan. Preferensi tema disimpan secara persisten di `DataStore`, sehingga tetap terjaga saat aplikasi ditutup dan dibuka kembali.
-- **Bahasa (Language)** — Tombol untuk beralih antara **English** dan **Bahasa Indonesia**. Pergantian bahasa dilakukan secara instan tanpa perlu restart aplikasi. Sistem menggunakan `AppCompatDelegate.setApplicationLocales()` untuk menerapkan perubahan locale pada seluruh teks UI yang telah didefinisikan di `strings.xml` (untuk English) dan `strings.xml (values-in)` (untuk Bahasa Indonesia). Seluruh teks, termasuk label formulir, pesan error, placeholder, dan notifikasi Toast, ikut berubah sesuai bahasa yang dipilih.
-- **Tentang Aplikasi** — Menampilkan versi rilis aplikasi (RecipeBox v1.0.0) beserta daftar teknologi utama yang digunakan dalam pengembangan.
+### 🎬 Onboarding
+- Layar sambutan pertama kali dengan 3 slide informatif.
+- Hanya muncul sekali, kemudian disimpan di SharedPreferences.
 
 ---
 
