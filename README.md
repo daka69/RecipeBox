@@ -19,7 +19,7 @@ Dibangun dengan arsitektur **MVVM + Clean Architecture**, menggunakan **Jetpack 
   <img src="screenshots/search.jpeg" width="200" alt="Search"/>
   <img src="screenshots/meal_plan.jpeg" width="200" alt="Meal Plan"/>
   <img src="screenshots/add_recipe.jpeg" width="200" alt="Add Recipe"/>
-  <img src="screenshots/settings.jpeg" width="200" alt="Settings"/>
+  <img src="screenshots/setting.jpeg" width="200" alt="Settings"/>
 </p>
 
 ---
